@@ -1028,6 +1028,10 @@ static struct {
 	{"42/42",		TRUE,	MARK_OP_NONE, { 42, 42 }},
 	{"42/0xff",		TRUE,	MARK_OP_NONE, { 42, 0xff }},
 	{"0x42/0xff",	TRUE,	MARK_OP_NONE, { 0x42, 0xff }},
+	{"42/0xff<<8",	TRUE,	MARK_OP_NONE, { 0x2a00, 0xff00 }},
+	{"42/0xff<<0xff", TRUE,	MARK_OP_NONE, { 0x2a00, 0xff00 }},
+	{"42/0xfffff000<<12", TRUE,	MARK_OP_NONE, { 0x2a000, 0xfffff000 }},
+	{"42/0xff<<0x20", FALSE,	MARK_OP_NONE, { 0 }},
 	{"/0xff",		TRUE,	MARK_OP_NONE, { 0, 0xff }},
 	{"/x",			FALSE,	MARK_OP_NONE, { 0 }},
 	{"x/x",			FALSE,	MARK_OP_NONE, { 0 }},
@@ -1043,6 +1047,18 @@ static struct {
 		{ MARK_UNIQUE, 0x0000ffff }},
 	{"%unique/0xffffffff",		TRUE,	MARK_OP_UNIQUE,
 		{ MARK_UNIQUE, 0xffffffff }},
+	{"%unique<<12",				TRUE,	MARK_OP_UNIQUE,
+		{ MARK_UNIQUE, 0xffffffff, 12 }},
+	{"%unique/0xfffff000<<12",	TRUE,	MARK_OP_UNIQUE,
+		{ MARK_UNIQUE, 0xfffff000, 12 }},
+	{"%unique/0xffffff00<<0xff", TRUE,	MARK_OP_UNIQUE,
+		{ MARK_UNIQUE, 0xffffff00, 8 }},
+	{"%unique/0xfffff000<<",	FALSE,	MARK_OP_UNIQUE,
+		{ 0, 0 }},
+	{"%unique/0xfffff000<<32",	FALSE,	MARK_OP_UNIQUE,
+		{ 0, 0 }},
+	{"%unique/0xfffff000<<x",	FALSE,	MARK_OP_UNIQUE,
+		{ 0, 0 }},
 	{"%unique0xffffffffff",		FALSE,	MARK_OP_UNIQUE,
 		{ 0, 0 }},
 	{"0xffffffff/0x0000ffff",	TRUE,	MARK_OP_UNIQUE,
@@ -1059,6 +1075,8 @@ static struct {
 		{ MARK_UNIQUE_DIR, 0x0000ffff }},
 	{"%unique-dir/0xffffffff",	TRUE,	MARK_OP_UNIQUE,
 		{ MARK_UNIQUE_DIR, 0xffffffff }},
+	{"%unique-dir/0xfffff000<<12", TRUE,	MARK_OP_UNIQUE,
+		{ MARK_UNIQUE_DIR, 0xfffff000, 12 }},
 	{"%unique-dir0xffffffff",	FALSE,	MARK_OP_UNIQUE,
 		{ 0, 0 }},
 	{"0xfffffffe/0x0000ffff",	TRUE,	MARK_OP_UNIQUE,
@@ -1073,6 +1091,10 @@ static struct {
 		{ MARK_SAME, 0xffffffff }},
 	{"%same/0x0000ffff",		TRUE,	MARK_OP_SAME,
 		{ MARK_SAME, 0x0000ffff }},
+	{"42/0xff<<8",			TRUE,	MARK_OP_SAME,
+		{ 0x2a00, 0xff00 }},
+	{"%same/0xffffffff<<12",	FALSE,	MARK_OP_SAME,
+		{ 0, 0 }},
 	{"%%same",					FALSE,	MARK_OP_NONE,
 		{ 0, 0 }},
 };
@@ -1085,11 +1107,37 @@ START_TEST(test_mark_from_string)
 	{
 		ck_assert_int_eq(mark.value, mark_data[_i].m.value);
 		ck_assert_int_eq(mark.mask, mark_data[_i].m.mask);
+		ck_assert_int_eq(mark.shift, mark_data[_i].m.shift);
 	}
 	else
 	{
 		ck_assert(!mark_data[_i].ok);
 	}
+}
+END_TEST
+
+/*******************************************************************************
+ * mark_apply_unique
+ */
+
+static struct {
+	mark_t mark;
+	uint32_t value;
+	uint32_t expected;
+} mark_apply_unique_data[] = {
+	{{ MARK_UNIQUE, 0xffffffff }, 1, 1 },
+	{{ MARK_UNIQUE, 0xffffffff, 12 }, 1, 0x1000 },
+	{{ MARK_UNIQUE, 0xfffff000, 12 }, 1, 0x1000 },
+	{{ MARK_UNIQUE, 0xfffff000, 12 }, 2, 0x2000 },
+	{{ MARK_UNIQUE, 0xfffff000, 12 }, 0xfffff, 0xfffff000 },
+	{{ MARK_UNIQUE, 0xfffff000, 12 }, 0x100000, 0 },
+};
+
+START_TEST(test_mark_apply_unique)
+{
+	ck_assert_int_eq(mark_apply_unique(mark_apply_unique_data[_i].mark,
+									  mark_apply_unique_data[_i].value),
+					 mark_apply_unique_data[_i].expected);
 }
 END_TEST
 
@@ -1327,6 +1375,10 @@ Suite *utils_suite_create()
 
 	tc = tcase_create("mark_from_string");
 	tcase_add_loop_test(tc, test_mark_from_string, 0, countof(mark_data));
+	suite_add_tcase(s, tc);
+	tc = tcase_create("mark_apply_unique");
+	tcase_add_loop_test(tc, test_mark_apply_unique, 0,
+						countof(mark_apply_unique_data));
 	suite_add_tcase(s, tc);
 
 	tc = tcase_create("if_id_from_string");

@@ -1079,11 +1079,13 @@ static child_cfg_t *build_child_cfg(private_stroke_config_t *this,
 		},
 		.mark_in = {
 			.value = msg->add_conn.mark_in.value,
-			.mask = msg->add_conn.mark_in.mask
+			.mask = msg->add_conn.mark_in.mask,
+			.shift = msg->add_conn.mark_in.shift
 		},
 		.mark_out = {
 			.value = msg->add_conn.mark_out.value,
-			.mask = msg->add_conn.mark_out.mask
+			.mask = msg->add_conn.mark_out.mask,
+			.shift = msg->add_conn.mark_out.shift
 		},
 		.reqid = msg->add_conn.reqid,
 		.mode = msg->add_conn.mode,
