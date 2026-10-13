@@ -937,10 +937,11 @@ connections.<conn>.children.<child>.mark_in = 0/0x00000000
 	An additional mask may be appended to the mark, separated by _/_. The
 	default mask if omitted is 0xffffffff. A left shift may additionally be
 	appended as _<<shift_ to place the value into a specific mark namespace.
-	For numeric marks, low-bit masks are shifted too, so _0x2a/0xff<<8_
-	results in _0x2a00/0xff00_. The shift may also be written as a low-bit
-	hexadecimal mask, e.g. _<<0xff_ is equivalent to _<<8_. For _%unique_
-	and _%unique-dir_, the shift is applied when allocating the unique value,
+	Low-bit masks are shifted too, so _0x2a/0xff<<8_ results in
+	_0x2a00/0xff00_, and _%unique/0xffff<<0xffff_ allocates values in
+	_0xffff0000_. The shift may also be written as a low-bit hexadecimal
+	mask, e.g. _<<0xff_ is equivalent to _<<8_. For _%unique_ and
+	_%unique-dir_, the shift is applied when allocating the unique value,
 	e.g. _%unique/0xfffff000<<12_.
 
 connections.<conn>.children.<child>.mark_in_sa = no
@@ -966,10 +967,11 @@ connections.<conn>.children.<child>.mark_out = 0/0x00000000
 	An additional mask may be appended to the mark, separated by _/_. The
 	default mask if omitted is 0xffffffff. A left shift may additionally be
 	appended as _<<shift_ to place the value into a specific mark namespace.
-	For numeric marks, low-bit masks are shifted too, so _0x2a/0xff<<8_
-	results in _0x2a00/0xff00_. The shift may also be written as a low-bit
-	hexadecimal mask, e.g. _<<0xff_ is equivalent to _<<8_. For _%unique_
-	and _%unique-dir_, the shift is applied when allocating the unique value,
+	Low-bit masks are shifted too, so _0x2a/0xff<<8_ results in
+	_0x2a00/0xff00_, and _%unique/0xffff<<0xffff_ allocates values in
+	_0xffff0000_. The shift may also be written as a low-bit hexadecimal
+	mask, e.g. _<<0xff_ is equivalent to _<<8_. For _%unique_ and
+	_%unique-dir_, the shift is applied when allocating the unique value,
 	e.g. _%unique/0xfffff000<<12_.
 
 connections.<conn>.children.<child>.set_mark_in = 0/0x00000000

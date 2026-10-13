@@ -237,6 +237,7 @@ enum mark_op_t {
  * Try to parse a mark_t from the given string of the form
  * mark[/mask][<<shift].  For numeric marks, the shift is applied while
  * parsing.  For unique marks, it is applied when allocating the value.
+ * Low-bit masks are shifted too, e.g. /0xff<<0xff becomes /0xff00<<8.
  * The shift may also be specified as a low-bit hexadecimal mask, e.g.
  * <<0xff is interpreted as <<8.
  *

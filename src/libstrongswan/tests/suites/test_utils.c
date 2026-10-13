@@ -1053,6 +1053,8 @@ static struct {
 		{ MARK_UNIQUE, 0xfffff000, 12 }},
 	{"%unique/0xffffff00<<0xff", TRUE,	MARK_OP_UNIQUE,
 		{ MARK_UNIQUE, 0xffffff00, 8 }},
+	{"%unique/0x0000ffff<<0xffff", TRUE, MARK_OP_UNIQUE,
+		{ MARK_UNIQUE, 0xffff0000, 16 }},
 	{"%unique/0xfffff000<<",	FALSE,	MARK_OP_UNIQUE,
 		{ 0, 0 }},
 	{"%unique/0xfffff000<<32",	FALSE,	MARK_OP_UNIQUE,
@@ -1130,6 +1132,8 @@ static struct {
 	{{ MARK_UNIQUE, 0xfffff000, 12 }, 1, 0x1000 },
 	{{ MARK_UNIQUE, 0xfffff000, 12 }, 2, 0x2000 },
 	{{ MARK_UNIQUE, 0xfffff000, 12 }, 0xfffff, 0xfffff000 },
+	{{ MARK_UNIQUE, 0xffff0000, 16 }, 1, 0x10000 },
+	{{ MARK_UNIQUE, 0xffff0000, 16 }, 0xffff, 0xffff0000 },
 	{{ MARK_UNIQUE, 0xfffff000, 12 }, 0x100000, 0 },
 };
 

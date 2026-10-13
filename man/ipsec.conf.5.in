@@ -1049,10 +1049,14 @@ or as a low-bit hexadecimal mask, e.g.
 .B <<0xff
 is equivalent to
 .BR <<8 .
-For numeric marks, low-bit masks are shifted too, so
+Low-bit masks are shifted too, so
 .B 0x2a/0xff<<8
 results in
-.BR 0x2a00/0xff00 .
+.B 0x2a00/0xff00
+and
+.B %unique/0xffff<<0xffff
+allocates values in
+.BR 0xffff0000 .
 For
 .B %unique
 and
@@ -1070,10 +1074,14 @@ or as a low-bit hexadecimal mask, e.g.
 .B <<0xff
 is equivalent to
 .BR <<8 .
-For numeric marks, low-bit masks are shifted too, so
+Low-bit masks are shifted too, so
 .B 0x2a/0xff<<8
 results in
-.BR 0x2a00/0xff00 .
+.B 0x2a00/0xff00
+and
+.B %unique/0xffff<<0xffff
+allocates values in
+.BR 0xffff0000 .
 For
 .B %unique
 and
@@ -1090,10 +1098,14 @@ or as a low-bit hexadecimal mask, e.g.
 .B <<0xff
 is equivalent to
 .BR <<8 .
-For numeric marks, low-bit masks are shifted too, so
+Low-bit masks are shifted too, so
 .B 0x2a/0xff<<8
 results in
-.BR 0x2a00/0xff00 .
+.B 0x2a00/0xff00
+and
+.B %unique/0xffff<<0xffff
+allocates values in
+.BR 0xffff0000 .
 For
 .B %unique
 and

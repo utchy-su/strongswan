@@ -210,14 +210,14 @@ bool mark_from_string(const char *value, mark_op_t ops, mark_t *mark)
 		DBG1(DBG_LIB, "invalid mark value: %s", endptr);
 		return FALSE;
 	}
+	if (mark->shift && mark_is_low_mask(mark->mask))
+	{
+		mark->mask <<= mark->shift;
+	}
 	if (!MARK_IS_UNIQUE(mark->value))
 	{
 		if (mark->shift)
 		{
-			if (mark_is_low_mask(mark->mask))
-			{
-				mark->mask <<= mark->shift;
-			}
 			mark->value = mark_apply_unique(*mark, mark->value);
 			mark->shift = 0;
 		}
