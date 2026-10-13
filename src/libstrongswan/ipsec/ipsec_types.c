@@ -67,17 +67,77 @@ bool ipsec_sa_cfg_equals(ipsec_sa_cfg_t *a, ipsec_sa_cfg_t *b)
 		a->ipcomp.cpi == b->ipcomp.cpi;
 }
 
+/**
+ * Check if the given mask covers only the least significant bits.
+ */
+static bool mark_is_low_mask(uint32_t mask)
+{
+	return mask && !(mask & (mask + 1));
+}
+
+/**
+ * Derive a shift count from a low-bit mask like 0xff.
+ */
+static bool shift_from_low_mask(u_long mask, uint8_t *shift)
+{
+	uint8_t width = 0;
+
+	if (mask > (u_long)UINT32_MAX || !mark_is_low_mask(mask))
+	{
+		return FALSE;
+	}
+	while (mask)
+	{
+		width++;
+		mask >>= 1;
+	}
+	if (width > 31)
+	{
+		return FALSE;
+	}
+	*shift = width;
+	return TRUE;
+}
+
+/**
+ * Parse an explicit shift count or a low-bit hexadecimal mask.
+ */
+static bool parse_mark_shift(char *shiftptr, char **endptr, uint8_t *shift)
+{
+	u_long parsed;
+
+	parsed = strtoul(shiftptr, endptr, 0);
+	if (shiftptr == *endptr)
+	{
+		DBG1(DBG_APP, "invalid mark shift: %s", shiftptr);
+		return FALSE;
+	}
+	if (strcasepfx(shiftptr, "0x") && shift_from_low_mask(parsed, shift))
+	{
+		return TRUE;
+	}
+	if (parsed > 31)
+	{
+		DBG1(DBG_APP, "invalid mark shift: %lu", parsed);
+		return FALSE;
+	}
+	*shift = parsed;
+	return TRUE;
+}
+
 /*
  * See header
  */
 bool mark_from_string(const char *value, mark_op_t ops, mark_t *mark)
 {
-	char *endptr;
+	char *endptr, *shiftptr;
+	bool mask = FALSE, same = FALSE;
 
 	if (!value)
 	{
 		return FALSE;
 	}
+	*mark = (mark_t){};
 	if (strcasepfx(value, "%unique"))
 	{
 		if (!(ops & MARK_OP_UNIQUE))
@@ -91,7 +151,7 @@ bool mark_from_string(const char *value, mark_op_t ops, mark_t *mark)
 			mark->value = MARK_UNIQUE_DIR;
 			endptr += strlen("-dir");
 		}
-		else if (!*endptr || *endptr == '/')
+		else if (!*endptr || *endptr == '/' || strpfx(endptr, "<<"))
 		{
 			mark->value = MARK_UNIQUE;
 		}
@@ -108,8 +168,9 @@ bool mark_from_string(const char *value, mark_op_t ops, mark_t *mark)
 			DBG1(DBG_APP, "unexpected use of %%same mark", value);
 			return FALSE;
 		}
+		same = TRUE;
 		endptr = (char*)value + strlen("%same");
-		if (!*endptr || *endptr == '/')
+		if (!*endptr || *endptr == '/' || strpfx(endptr, "<<"))
 		{
 			mark->value = MARK_SAME;
 		}
@@ -123,30 +184,64 @@ bool mark_from_string(const char *value, mark_op_t ops, mark_t *mark)
 	{
 		mark->value = strtoul(value, &endptr, 0);
 	}
-	if (*endptr)
+	if (*endptr == '/')
 	{
-		if (*endptr != '/')
-		{
-			DBG1(DBG_APP, "invalid mark value: %s", value);
-			return FALSE;
-		}
+		mask = TRUE;
 		mark->mask = strtoul(endptr+1, &endptr, 0);
-		if (*endptr)
-		{
-			DBG1(DBG_LIB, "invalid mark mask: %s", endptr);
-			return FALSE;
-		}
 	}
 	else
 	{
 		mark->mask = 0xffffffff;
 	}
+	if (strpfx(endptr, "<<"))
+	{
+		if (same)
+		{
+			DBG1(DBG_APP, "unexpected use of mark shift: %s", value);
+			return FALSE;
+		}
+		shiftptr = endptr + 2;
+		if (!parse_mark_shift(shiftptr, &endptr, &mark->shift))
+		{
+			return FALSE;
+		}
+	}
+	if (*endptr)
+	{
+		DBG1(DBG_LIB, "invalid mark value: %s", endptr);
+		return FALSE;
+	}
+	if (mask && mark->shift && mark_is_low_mask(mark->mask))
+	{
+		mark->mask <<= mark->shift;
+	}
 	if (!MARK_IS_UNIQUE(mark->value))
 	{
-		/* apply the mask to ensure the value is in range */
-		mark->value &= mark->mask;
+		if (mark->shift)
+		{
+			mark->value = mark_apply_unique(*mark, mark->value);
+			mark->shift = 0;
+		}
+		else
+		{
+			/* apply the mask to ensure the value is in range */
+			mark->value &= mark->mask;
+		}
 	}
 	return TRUE;
+}
+
+/*
+ * See header
+ */
+uint32_t mark_apply_unique(mark_t mark, uint32_t value)
+{
+	if (mark.shift)
+	{
+		value <<= mark.shift;
+		value &= mark.mask;
+	}
+	return value;
 }
 
 /*

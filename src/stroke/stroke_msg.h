@@ -300,6 +300,7 @@ struct stroke_msg_t {
 			struct {
 				uint32_t value;
 				uint32_t mask;
+				uint8_t shift;
 			} mark_in, mark_out;
 			stroke_end_t me, other;
 			uint32_t replay_window;

@@ -1033,7 +1033,7 @@ begin; acceptable values as for
 Relevant only locally, other end need not agree on it. Also see EXPIRY/REKEY
 below.
 .TP
-.BR mark " = <value>[/<mask>]"
+.BR mark " = <value>[/<mask>][<<shift]"
 sets an XFRM mark on the inbound policy and outbound
 IPsec SA and policy. If the mask is missing then a default
 mask of
@@ -1043,19 +1043,74 @@ is assumed. The special value
 assigns a unique value to each newly created IPsec SA. To additionally
 make the mark unique for each IPsec SA direction (in/out) the special value
 .B %unique-dir
-may be used.
+may be used. A left shift may additionally be appended as
+.BR <<shift
+or as a low-bit hexadecimal mask, e.g.
+.B <<0xff
+is equivalent to
+.BR <<8 .
+Low-bit masks are shifted too, so
+.B 0x2a/0xff<<8
+results in
+.B 0x2a00/0xff00
+and
+.B %unique/0xffff<<0xffff
+allocates values in
+.BR 0xffff0000 .
+For
+.B %unique
+and
+.BR %unique-dir ,
+the shift is applied when allocating the unique value, e.g.
+.BR %unique/0xfffff000<<12 .
 .TP
-.BR mark_in " = <value>[/<mask>]"
+.BR mark_in " = <value>[/<mask>][<<shift]"
 sets an XFRM mark on the inbound policy (not on the SA). If the mask is missing
 then a default mask of
 .B 0xffffffff
-is assumed.
+is assumed. A left shift may additionally be appended as
+.BR <<shift
+or as a low-bit hexadecimal mask, e.g.
+.B <<0xff
+is equivalent to
+.BR <<8 .
+Low-bit masks are shifted too, so
+.B 0x2a/0xff<<8
+results in
+.B 0x2a00/0xff00
+and
+.B %unique/0xffff<<0xffff
+allocates values in
+.BR 0xffff0000 .
+For
+.B %unique
+and
+.BR %unique-dir ,
+the shift is applied when allocating the unique value.
 .TP
-.BR mark_out " = <value>[/<mask>]"
+.BR mark_out " = <value>[/<mask>][<<shift]"
 sets an XFRM mark on the outbound IPsec SA and
 policy. If the mask is missing then a default mask of
 .B 0xffffffff
-is assumed.
+is assumed. A left shift may additionally be appended as
+.BR <<shift
+or as a low-bit hexadecimal mask, e.g.
+.B <<0xff
+is equivalent to
+.BR <<8 .
+Low-bit masks are shifted too, so
+.B 0x2a/0xff<<8
+results in
+.B 0x2a00/0xff00
+and
+.B %unique/0xffff<<0xffff
+allocates values in
+.BR 0xffff0000 .
+For
+.B %unique
+and
+.BR %unique-dir ,
+the shift is applied when allocating the unique value.
 .TP
 .BR mobike " = " yes " | no"
 enables the IKEv2 MOBIKE protocol defined by RFC 4555. Accepted values are

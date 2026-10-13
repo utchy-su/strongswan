@@ -703,12 +703,16 @@ METHOD(child_cfg_t, equals, bool,
 		this->if_id_out == other->if_id_out &&
 		this->mark_in.value == other->mark_in.value &&
 		this->mark_in.mask == other->mark_in.mask &&
+		this->mark_in.shift == other->mark_in.shift &&
 		this->mark_out.value == other->mark_out.value &&
 		this->mark_out.mask == other->mark_out.mask &&
+		this->mark_out.shift == other->mark_out.shift &&
 		this->set_mark_in.value == other->set_mark_in.value &&
 		this->set_mark_in.mask == other->set_mark_in.mask &&
+		this->set_mark_in.shift == other->set_mark_in.shift &&
 		this->set_mark_out.value == other->set_mark_out.value &&
 		this->set_mark_out.mask == other->set_mark_out.mask &&
+		this->set_mark_out.shift == other->set_mark_out.shift &&
 		this->tfc == other->tfc &&
 		this->manual_prio == other->manual_prio &&
 		this->replay_window == other->replay_window &&
