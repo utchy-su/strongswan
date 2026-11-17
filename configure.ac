@@ -200,6 +200,7 @@ ARG_ENABL_SET([eap-sim-file],   [enable EAP-SIM backend based on a triplet file.
 ARG_ENABL_SET([eap-sim-pcsc],   [enable EAP-SIM backend based on a smartcard reader. Requires libpcsclite.])
 ARG_ENABL_SET([eap-aka],        [enable EAP AKA authentication module.])
 ARG_ENABL_SET([eap-aka-3gpp],   [enable EAP AKA backend implementing 3GPP MILENAGE algorithms in software.])
+ARG_ENABL_SET([eap-aka-at],     [enable EAP AKA backend using a USIM accessed via the AT command interface of a modem.])
 ARG_ENABL_SET([eap-aka-3gpp2],  [enable EAP AKA backend implementing 3GPP2 algorithms in software. Requires libgmp.])
 ARG_ENABL_SET([eap-simaka-sql], [enable EAP-SIM/AKA backend based on a triplet/quintuplet SQL database.])
 ARG_ENABL_SET([eap-simaka-pseudonym], [enable EAP-SIM/AKA pseudonym storage plugin.])
@@ -1618,6 +1619,7 @@ ADD_PLUGIN([eap-sim-pcsc],         [c charon])
 ADD_PLUGIN([eap-aka],              [c charon])
 ADD_PLUGIN([eap-aka-3gpp],         [c charon])
 ADD_PLUGIN([eap-aka-3gpp2],        [c charon])
+ADD_PLUGIN([eap-aka-at],           [c charon])
 ADD_PLUGIN([eap-simaka-sql],       [c charon])
 ADD_PLUGIN([eap-simaka-pseudonym], [c charon])
 ADD_PLUGIN([eap-simaka-reauth],    [c charon])
@@ -1798,6 +1800,7 @@ AM_CONDITIONAL(USE_EAP_GTC, test x$eap_gtc = xtrue)
 AM_CONDITIONAL(USE_EAP_AKA, test x$eap_aka = xtrue)
 AM_CONDITIONAL(USE_EAP_AKA_3GPP, test x$eap_aka_3gpp = xtrue)
 AM_CONDITIONAL(USE_EAP_AKA_3GPP2, test x$eap_aka_3gpp2 = xtrue)
+AM_CONDITIONAL(USE_EAP_AKA_AT, test x$eap_aka_at = xtrue)
 AM_CONDITIONAL(USE_EAP_MSCHAPV2, test x$eap_mschapv2 = xtrue)
 AM_CONDITIONAL(USE_EAP_TLS, test x$eap_tls = xtrue)
 AM_CONDITIONAL(USE_EAP_TTLS, test x$eap_ttls = xtrue)
@@ -2081,6 +2084,7 @@ AC_CONFIG_FILES([
 	src/libcharon/plugins/eap_sim/Makefile
 	src/libcharon/plugins/eap_sim_file/Makefile
 	src/libcharon/plugins/eap_sim_pcsc/Makefile
+	src/libcharon/plugins/eap_aka_at/Makefile
 	src/libcharon/plugins/eap_simaka_sql/Makefile
 	src/libcharon/plugins/eap_simaka_pseudonym/Makefile
 	src/libcharon/plugins/eap_simaka_reauth/Makefile

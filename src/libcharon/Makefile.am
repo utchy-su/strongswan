@@ -356,6 +356,13 @@ if MONOLITHIC
 endif
 endif
 
+if USE_EAP_AKA_AT
+  SUBDIRS += plugins/eap_aka_at
+if MONOLITHIC
+  libcharon_la_LIBADD += plugins/eap_aka_at/libstrongswan-eap-aka-at.la
+endif
+endif
+
 if USE_EAP_SIMAKA_SQL
   SUBDIRS += plugins/eap_simaka_sql
 if MONOLITHIC
