@@ -15,6 +15,7 @@ jobs:
     # requests that come from forks
     if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository }}
     runs-on: macos-latest
+    timeout-minutes: 30
     env:
       TEST: macos
     steps:
