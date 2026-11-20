@@ -11,9 +11,9 @@ env:
 
 jobs:
   android:
-    # branches of this repository are built on push, so only build pull
-    # requests that come from forks
-    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository }}
+    # disabled: the native build depends on android-ndk-boringssl, which was
+    # only available from git.strongswan.org and doesn't exist anymore
+    if: ${{ false }}
     runs-on: ubuntu-22.04
     env:
       TEST: android
