@@ -296,7 +296,8 @@ macos)
 	DEPS="automake autoconf libtool bison gettext openssl@3 curl"
 	BREW_PREFIX=$(brew --prefix)
 	export PATH=$BREW_PREFIX/opt/bison/bin:$PATH
-	export ACLOCAL_PATH=$BREW_PREFIX/opt/gettext/share/aclocal:$ACLOCAL_PATH
+	# newer gettext releases install lib-prefix.m4 etc. in share/gettext/m4
+	export ACLOCAL_PATH=$BREW_PREFIX/opt/gettext/share/gettext/m4:$BREW_PREFIX/opt/gettext/share/aclocal:$ACLOCAL_PATH
 	for pkg in openssl@3 curl
 	do
 		PKG_CONFIG_PATH=$BREW_PREFIX/opt/$pkg/lib/pkgconfig:$PKG_CONFIG_PATH
