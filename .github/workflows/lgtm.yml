@@ -6,19 +6,7 @@ env:
   OS_NAME: linux
 
 jobs:
-  pre-check:
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip-check.outputs.should_skip }}
-    steps:
-      - id: skip-check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-
   lgtm:
-    needs: pre-check
-    if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
     runs-on: ubuntu-22.04
     env:
       TEST: lgtm

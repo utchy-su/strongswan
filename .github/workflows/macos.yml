@@ -10,19 +10,10 @@ env:
   OS_NAME: macos
 
 jobs:
-  pre-check:
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip-check.outputs.should_skip }}
-    steps:
-      - id: skip-check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-
   macos:
-    needs: pre-check
-    if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
+    # branches of this repository are built on push, so only build pull
+    # requests that come from forks
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository }}
     runs-on: macos-latest
     env:
       TEST: macos
