@@ -25,12 +25,16 @@
 
 FROM debian:bullseye
 
+# bullseye is EOL, its packages are only available from the archive
+RUN echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list && \
+  echo "deb http://archive.debian.org/debian-security bullseye-security main" >> /etc/apt/sources.list
+
 ARG packages="autoconf automake bison build-essential ca-certificates ccache \
 flex gettext git gperf libssl-dev libtool pkg-config \
 gnat gprbuild libahven9-dev libxmlada-schema10-dev libgmpada10-dev \
 libalog6-dev"
 
-RUN apt-get update && \
+RUN apt-get -o Acquire::Check-Valid-Until=false update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -qq -y \
   --no-install-recommends \
   $packages \

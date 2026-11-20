@@ -13,20 +13,12 @@ env:
   MONOLITHIC: yes
 
 jobs:
-  pre-check:
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip-check.outputs.should_skip }}
-    steps:
-      - id: skip-check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-
   cross-compile:
-    needs: pre-check
-    if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    # branches of this repository are built on push, so only build pull
+    # requests that come from forks
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
     strategy:
       matrix:
         test: [ win64, win32 ]
@@ -34,8 +26,8 @@ jobs:
       OS_NAME: linux
       TEST: ${{ matrix.test }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.ccache
           key: ccache-${{ runner.os }}-${{ matrix.test }}-${{ github.sha }}
@@ -48,8 +40,8 @@ jobs:
       - uses: ./.github/actions/default
       - run: ccache -s
       - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: Logs ${{ github.job }}
+          name: Logs ${{ github.job }} ${{ strategy.job-index }}
           path: config.log
           retention-days: 5

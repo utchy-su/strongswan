@@ -282,6 +282,8 @@ android)
 macos)
 	# this causes a false positive in ip-packet.c since Xcode 8.3
 	CFLAGS="$CFLAGS -Wno-address-of-packed-member"
+	# current versions of clang treat this as error even without -Werror
+	CFLAGS="$CFLAGS -Wno-incompatible-function-pointer-types"
 	# use the same options as in the Homebrew Formula
 	CONFIG="--disable-defaults --enable-charon --enable-cmd --enable-constraints
 			--enable-curl --enable-eap-gtc --enable-eap-identity
@@ -293,11 +295,15 @@ macos)
 			--enable-socket-default --enable-sshkey --enable-stroke
 			--enable-swanctl --enable-unity --enable-updown
 			--enable-x509 --enable-xauth-generic"
-	DEPS="automake autoconf libtool bison gettext openssl@1.1 curl"
+	# this release predates the compilers on current macOS runners, which
+	# report several new warnings, so don't treat warnings as errors
+	CONFIG="$CONFIG --disable-warnings"
+	DEPS="automake autoconf libtool bison gettext gperf openssl@3 curl"
 	BREW_PREFIX=$(brew --prefix)
 	export PATH=$BREW_PREFIX/opt/bison/bin:$PATH
-	export ACLOCAL_PATH=$BREW_PREFIX/opt/gettext/share/aclocal:$ACLOCAL_PATH
-	for pkg in openssl@1.1 curl
+	# newer gettext releases install lib-prefix.m4 etc. in share/gettext/m4
+	export ACLOCAL_PATH=$BREW_PREFIX/opt/gettext/share/gettext/m4:$BREW_PREFIX/opt/gettext/share/aclocal:$ACLOCAL_PATH
+	for pkg in openssl@3 curl
 	do
 		PKG_CONFIG_PATH=$BREW_PREFIX/opt/$pkg/lib/pkgconfig:$PKG_CONFIG_PATH
 		CPPFLAGS="-I$BREW_PREFIX/opt/$pkg/include $CPPFLAGS"
