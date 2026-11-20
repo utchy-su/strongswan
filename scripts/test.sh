@@ -282,6 +282,8 @@ android)
 macos)
 	# this causes a false positive in ip-packet.c since Xcode 8.3
 	CFLAGS="$CFLAGS -Wno-address-of-packed-member"
+	# newer versions of clang complain about the casts of callback functions
+	CFLAGS="$CFLAGS -Wno-cast-function-type-mismatch"
 	# use the same options as in the Homebrew Formula
 	CONFIG="--disable-defaults --enable-charon --enable-cmd --enable-constraints
 			--enable-curl --enable-eap-gtc --enable-eap-identity
