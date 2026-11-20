@@ -27,8 +27,8 @@ jobs:
     env:
       TEST: macos
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/Library/Caches/ccache
           key: ccache-${{ runner.os }}-${{ github.sha }}
@@ -41,8 +41,8 @@ jobs:
       - uses: ./.github/actions/default
       - run: ccache -s
       - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: Logs ${{ github.job }}
+          name: Logs ${{ github.job }} ${{ strategy.job-index }}
           path: config.log
           retention-days: 5

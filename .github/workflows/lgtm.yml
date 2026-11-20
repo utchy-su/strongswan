@@ -19,11 +19,11 @@ jobs:
   lgtm:
     needs: pre-check
     if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       TEST: lgtm
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       # we don't use github/codeql-action because we can't exclude queries there,

@@ -26,7 +26,7 @@ jobs:
   cross-compile:
     needs: pre-check
     if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         test: [ win64, win32 ]
@@ -34,8 +34,8 @@ jobs:
       OS_NAME: linux
       TEST: ${{ matrix.test }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.ccache
           key: ccache-${{ runner.os }}-${{ matrix.test }}-${{ github.sha }}
@@ -48,8 +48,8 @@ jobs:
       - uses: ./.github/actions/default
       - run: ccache -s
       - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: Logs ${{ github.job }}
+          name: Logs ${{ github.job }} ${{ strategy.job-index }}
           path: config.log
           retention-days: 5

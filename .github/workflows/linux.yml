@@ -26,7 +26,7 @@ jobs:
   latest:
     needs: pre-check
     if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         test: [ all, default, printf-builtin ]
@@ -54,8 +54,8 @@ jobs:
       CC: ${{ matrix.compiler || 'gcc' }}
       TEST: ${{ matrix.test }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.ccache
           # with regards to ccache, monolithic builds don't differ from regular
@@ -75,16 +75,16 @@ jobs:
       - if: ${{ success() && matrix.test == 'coverage' }}
         run: bash <(curl -s https://codecov.io/bash)
       - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: Logs ${{ github.job }}
+          name: Logs ${{ github.job }} ${{ strategy.job-index }}
           path: config.log
           retention-days: 5
 
   crypto-plugins:
     needs: pre-check
     if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         test: [ botan, wolfssl, openssl, openssl-3, gcrypt ]
@@ -93,8 +93,8 @@ jobs:
       LEAK_DETECTIVE: ${{ matrix.leak-detective || 'no' }}
       TEST: ${{ matrix.test }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.ccache
           key: ccache-${{ runner.os }}-${{ env.CC }}-${{ matrix.test }}-${{ github.sha }}
@@ -111,45 +111,8 @@ jobs:
       - uses: ./.github/actions/default
       - run: ccache -s
       - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: Logs ${{ github.job }}
-          path: config.log
-          retention-days: 5
-
-  bionic:
-    needs: pre-check
-    if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        test: [ all ]
-        compiler: [ gcc, clang ]
-        include:
-          - test: nm
-    env:
-      LEAK_DETECTIVE: ${{ matrix.leak-detective || 'no' }}
-      CC: ${{ matrix.compiler || 'gcc' }}
-      TEST: ${{ matrix.test }}
-      UBUNTU_BIONIC: yes
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: ~/.ccache
-          key: ccache-bionic-${{ env.CC }}-${{ matrix.test }}-${{ github.sha }}
-          restore-keys: |
-            ccache-bionic-${{ env.CC }}-${{ matrix.test }}-
-            ccache-bionic-${{ env.CC }}-
-      - run: |
-          sudo apt-get install -qq ccache
-          echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
-          ccache -z
-      - uses: ./.github/actions/default
-      - run: ccache -s
-      - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: Logs ${{ github.job }}
+          name: Logs ${{ github.job }} ${{ strategy.job-index }}
           path: config.log
           retention-days: 5

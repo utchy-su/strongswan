@@ -23,12 +23,12 @@ jobs:
   tkm:
     needs: pre-check
     if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       TEST: tkm
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-tkm-${{ github.sha }}
