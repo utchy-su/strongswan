@@ -402,13 +402,22 @@ struct ipsec_sa_t {
 /**
  * Hash function for ipsec_sa_t objects
  */
+static u_int mark_hash(mark_t mark, u_int hash)
+{
+	return chunk_hash_inc(chunk_from_thing(mark.shift),
+			chunk_hash_inc(chunk_from_thing(mark.mask),
+				chunk_hash_inc(chunk_from_thing(mark.value), hash)));
+}
+
 static u_int ipsec_sa_hash(ipsec_sa_t *sa)
 {
-	return chunk_hash_inc(sa->src->get_address(sa->src),
-						  chunk_hash_inc(sa->dst->get_address(sa->dst),
-						  chunk_hash_inc(chunk_from_thing(sa->mark),
-						  chunk_hash_inc(chunk_from_thing(sa->if_id),
-						  chunk_hash(chunk_from_thing(sa->cfg))))));
+	u_int hash;
+
+	hash = chunk_hash(chunk_from_thing(sa->cfg));
+	hash = chunk_hash_inc(chunk_from_thing(sa->if_id), hash);
+	hash = mark_hash(sa->mark, hash);
+	hash = chunk_hash_inc(sa->dst->get_address(sa->dst), hash);
+	return chunk_hash_inc(sa->src->get_address(sa->src), hash);
 }
 
 /**
@@ -420,6 +429,7 @@ static bool ipsec_sa_equals(ipsec_sa_t *sa, ipsec_sa_t *other_sa)
 		   sa->dst->ip_equals(sa->dst, other_sa->dst) &&
 		   sa->mark.value == other_sa->mark.value &&
 		   sa->mark.mask == other_sa->mark.mask &&
+		   sa->mark.shift == other_sa->mark.shift &&
 		   sa->if_id == other_sa->if_id &&
 		   ipsec_sa_cfg_equals(&sa->cfg, &other_sa->cfg);
 }

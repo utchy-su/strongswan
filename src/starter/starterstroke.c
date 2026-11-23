@@ -228,8 +228,10 @@ int starter_stroke_add_conn(starter_config_t *cfg, starter_conn_t *conn)
 	msg->add_conn.replay_window = conn->replay_window;
 	msg->add_conn.mark_in.value = conn->mark_in.value;
 	msg->add_conn.mark_in.mask = conn->mark_in.mask;
+	msg->add_conn.mark_in.shift = conn->mark_in.shift;
 	msg->add_conn.mark_out.value = conn->mark_out.value;
 	msg->add_conn.mark_out.mask = conn->mark_out.mask;
+	msg->add_conn.mark_out.shift = conn->mark_out.shift;
 	msg->add_conn.tfc = conn->tfc;
 
 	add_end(&msg, offsetof(stroke_msg_t, add_conn.me), &conn->left);

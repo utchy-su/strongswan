@@ -229,14 +229,20 @@ static void reqid_entry_destroy(reqid_entry_t *entry)
 /**
  * Hash the shared data of reqid entries
  */
+static u_int hash_mark(mark_t mark, u_int hash)
+{
+	return chunk_hash_inc(chunk_from_thing(mark.shift),
+			chunk_hash_inc(chunk_from_thing(mark.mask),
+				chunk_hash_inc(chunk_from_thing(mark.value), hash)));
+}
+
 static u_int entry_hash_shared(reqid_entry_t *entry)
 {
 	u_int hash;
 
-	hash = chunk_hash_inc(chunk_from_thing(entry->mark_in),
-				chunk_hash_inc(chunk_from_thing(entry->mark_out),
-					chunk_hash_inc(chunk_from_thing(entry->if_id_in),
-						chunk_hash(chunk_from_thing(entry->if_id_out)))));
+	hash = hash_mark(entry->mark_in, hash_mark(entry->mark_out,
+				chunk_hash_inc(chunk_from_thing(entry->if_id_in),
+					chunk_hash(chunk_from_thing(entry->if_id_out)))));
 	if (entry->label)
 	{
 		hash = entry->label->hash(entry->label, hash);
@@ -251,8 +257,10 @@ static bool entry_equals_shared(reqid_entry_t *a, reqid_entry_t *b)
 {
 	return a->mark_in.value == b->mark_in.value &&
 		   a->mark_in.mask == b->mark_in.mask &&
+		   a->mark_in.shift == b->mark_in.shift &&
 		   a->mark_out.value == b->mark_out.value &&
 		   a->mark_out.mask == b->mark_out.mask &&
+		   a->mark_out.shift == b->mark_out.shift &&
 		   a->if_id_in == b->if_id_in &&
 		   a->if_id_out == b->if_id_out &&
 		   sec_labels_equal(a->label, b->label);

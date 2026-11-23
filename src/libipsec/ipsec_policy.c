@@ -89,6 +89,16 @@ struct private_ipsec_policy_t {
 
 };
 
+/**
+ * Compare two marks.
+ */
+static bool mark_equals(mark_t *a, mark_t *b)
+{
+	return a->value == b->value &&
+		   a->mask == b->mask &&
+		   a->shift == b->shift;
+}
+
 METHOD(ipsec_policy_t, match, bool,
 	private_ipsec_policy_t *this, traffic_selector_t *src_ts,
 	traffic_selector_t *dst_ts, policy_dir_t direction, uint32_t reqid,
@@ -97,7 +107,7 @@ METHOD(ipsec_policy_t, match, bool,
 	return (this->direction == direction &&
 			this->priority == priority &&
 			this->sa.reqid == reqid &&
-			memeq(&this->mark, &mark, sizeof(mark_t)) &&
+			mark_equals(&this->mark, &mark) &&
 			this->src_ts->equals(this->src_ts, src_ts) &&
 			this->dst_ts->equals(this->dst_ts, dst_ts));
 }

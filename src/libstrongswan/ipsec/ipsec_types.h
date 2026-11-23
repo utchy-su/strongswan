@@ -209,6 +209,8 @@ struct mark_t {
 	uint32_t value;
 	/** Mark mask */
 	uint32_t mask;
+	/** Left shift applied when allocating unique marks */
+	uint8_t shift;
 };
 
 /**
@@ -232,7 +234,12 @@ enum mark_op_t {
 };
 
 /**
- * Try to parse a mark_t from the given string of the form mark[/mask].
+ * Try to parse a mark_t from the given string of the form
+ * mark[/mask][<<shift].  For numeric marks, the shift is applied while
+ * parsing.  For unique marks, it is applied when allocating the value.
+ * Low-bit masks are shifted too, e.g. /0xff<<0xff becomes /0xff00<<8.
+ * The shift may also be specified as a low-bit hexadecimal mask, e.g.
+ * <<0xff is interpreted as <<8.
  *
  * @param value		string to parse
  * @param ops		operations to accept
@@ -240,6 +247,15 @@ enum mark_op_t {
  * @return			TRUE if parsing was successful
  */
 bool mark_from_string(const char *value, mark_op_t ops, mark_t *mark);
+
+/**
+ * Apply a parsed unique mark's shift to a raw unique allocation value.
+ *
+ * @param mark		parsed mark
+ * @param value		raw unique allocation value
+ * @return			shifted and masked value, if a shift is configured
+ */
+uint32_t mark_apply_unique(mark_t mark, uint32_t value);
 
 /**
  * Special interface ID values to allocate a unique ID for each CHILD_SA/dir

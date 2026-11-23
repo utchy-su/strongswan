@@ -308,6 +308,13 @@ static inline mark_t mark_in_sa(private_child_sa_t *this)
 	}
 	return (mark_t){};
 }
+/**
+ * Allocate a unique mark value and apply any configured shift.
+ */
+static inline uint32_t allocate_unique_mark(refcount_t *counter, mark_t mark)
+{
+	return mark_apply_unique(mark, ref_get(counter));
+}
 
 /**
  * Possible uses for security labels
@@ -2110,11 +2117,15 @@ child_sa_t *child_sa_create(host_t *me, host_t *other, child_cfg_t *config,
 		}
 		if (MARK_IS_UNIQUE(this->mark_in.value))
 		{
-			this->mark_in.value = unique_dir ? ref_get(&unique_mark) : mark;
+			this->mark_in.value = unique_dir ?
+				allocate_unique_mark(&unique_mark, this->mark_in) :
+				mark_apply_unique(this->mark_in, mark);
 		}
 		if (MARK_IS_UNIQUE(this->mark_out.value))
 		{
-			this->mark_out.value = unique_dir ? ref_get(&unique_mark) : mark;
+			this->mark_out.value = unique_dir ?
+				allocate_unique_mark(&unique_mark, this->mark_out) :
+				mark_apply_unique(this->mark_out, mark);
 		}
 	}
 
