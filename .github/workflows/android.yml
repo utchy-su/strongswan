@@ -10,20 +10,11 @@ env:
   OS_NAME: linux
 
 jobs:
-  pre-check:
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip-check.outputs.should_skip }}
-    steps:
-      - id: skip-check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-
   android:
-    needs: pre-check
-    if: ${{ needs.pre-check.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    # disabled: the native build depends on android-ndk-boringssl, which was
+    # only available from git.strongswan.org and doesn't exist anymore
+    if: ${{ false }}
+    runs-on: ubuntu-22.04
     env:
       TEST: android
       # since the NDK is newly installed every time, we have to use this to avoid cache misses
@@ -33,9 +24,9 @@ jobs:
       # so we load the version the Gradle Plugin uses as default but which is
       # not installed anymore in the image
       - name: Install NDK
-        run: yes | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install 'ndk;21.4.7075529'
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+        run: yes | sudo ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --install 'ndk;21.4.7075529'
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.ccache
           key: ccache-android-${{ github.sha }}
@@ -47,7 +38,7 @@ jobs:
           ccache -z
       - uses: ./.github/actions/default
       - run: ccache -s
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: Lint Results
           path: src/frontends/android/app/build/reports/lint-results.xml
