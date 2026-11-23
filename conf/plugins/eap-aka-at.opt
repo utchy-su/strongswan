@@ -1,0 +1,10 @@
+charon.plugins.eap-aka-at.device = /dev/ttyUSB2
+	Serial device providing the AT command interface of the modem that hosts
+	the USIM.
+
+charon.plugins.eap-aka-at.timeout = 5000
+	Timeout in milliseconds to wait for the response to a single AT command.
+
+charon.plugins.eap-aka-at.aid =
+	Hex encoded AID of the USIM application to authenticate with. Read from
+	EF.DIR if not configured.
